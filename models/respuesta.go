@@ -6,8 +6,7 @@ type Respuesta struct {
 	NumDocumento         int64
 	Valor_bruto string
 	Valor_neto  string
-	Descuentos *[]Descuentos
-	Novedades *[]NovedadAplicada
+	Conceptos   *[]ConceptosResumen
 }
 type FormatoPreliqu struct {
 	//Contrato   *ContratoGeneral

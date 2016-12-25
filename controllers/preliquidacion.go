@@ -4,6 +4,7 @@ import (
 	"github.com/astaxie/beego"
 	"titan_api_mid/models"
 	"encoding/json"
+	"fmt"
 )
 
 // PreliquidacionController operations for Preliquidacion
@@ -28,24 +29,25 @@ func (c *PreliquidacionController) Preliquidar() {
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
 		if(v[0].Nomina == "HC"){
 			var n *PreliquidacionHcController
-			n.Preliquidar(&v[0])
-
+			resumen := n.Preliquidar(&v[0])
+			c.Data["json"] = resumen
+		  c.ServeJSON()
 		}
 	}else{
-
+		fmt.Println("error: ", err)
 	}
 }
 
 func FormatoReglas(v []models.Predicado)(reglas string){
 	var arregloReglas = make([]string, len(v))
-	var reglasbase string = ""
+	reglas = ""
 	//var respuesta []models.FormatoPreliqu
 	for i := 0; i < len(v); i++ {
 		arregloReglas[i] = v[i].Nombre
 	}
 
 	for i := 0; i < len(arregloReglas); i++ {
-		reglas = reglasbase + arregloReglas[i] + " "
+		reglas = reglas + arregloReglas[i] + " "
 	}
 	return
 }

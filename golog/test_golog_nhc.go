@@ -13,7 +13,6 @@ func CargarReglas(reglas string, periodo string) (rest []models.Respuesta) {
   var control int = 0
 
 
-
   /*contratos := m.ProveAll(`valor_contrato(X,Y).`)
   for _, solution := range contratos {
     miArreglo[control].Nombre_Cont = fmt.Sprintf("%s", solution.ByName_("X"))
@@ -54,7 +53,7 @@ func CargarReglas(reglas string, periodo string) (rest []models.Respuesta) {
   }
   control = 0
   descuentos := m.ProveAll("descuento_ley(X,Y,"+periodo+",B,N).")
-  var lista_descuentos = make([]models.Descuentos, len(descuentos))
+  var lista_descuentos = make([]models.ConceptosResumen, len(descuentos))
   for _, solution := range descuentos {
     Base,_ := strconv.ParseFloat(fmt.Sprintf("%s", solution.ByName_("B")), 64)
     Valor,_ := strconv.ParseFloat(fmt.Sprintf("%s", solution.ByName_("Y")), 64)
@@ -63,7 +62,7 @@ func CargarReglas(reglas string, periodo string) (rest []models.Respuesta) {
     lista_descuentos[control].Valor = fmt.Sprintf("%.3f", Valor)
     control++
   }
-    miArreglo[0].Descuentos = &lista_descuentos
+    miArreglo[1].Conceptos = &lista_descuentos
   return miArreglo
 
 }
