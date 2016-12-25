@@ -29,9 +29,23 @@ func (c *PreliquidacionController) Preliquidar() {
 		if(v[0].Nomina == "HC"){
 			var n *PreliquidacionHcController
 			n.Preliquidar(&v[0])
-			
+
 		}
 	}else{
 
 	}
+}
+
+func FormatoReglas(v []models.Predicado)(reglas string){
+	var arregloReglas = make([]string, len(v))
+	var reglasbase string = ""
+	//var respuesta []models.FormatoPreliqu
+	for i := 0; i < len(v); i++ {
+		arregloReglas[i] = v[i].Nombre
+	}
+
+	for i := 0; i < len(arregloReglas); i++ {
+		reglas = reglasbase + arregloReglas[i] + " "
+	}
+	return
 }
