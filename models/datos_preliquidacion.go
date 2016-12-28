@@ -6,7 +6,7 @@ import (
 
 type DatosPreliquidacion struct {
 	IdPreliquidacion 			int
-	Nomina           			string
+	Nomina           			int
 	Periodo								float64
 	FechaInicio      			time.Time
 	FechaFin         			time.Time
