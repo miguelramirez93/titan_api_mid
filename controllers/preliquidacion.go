@@ -27,11 +27,11 @@ func (c *PreliquidacionController) URLMapping() {
 // @Failure 403 body is empty
 // @router / [post]
 func (c *PreliquidacionController) Preliquidar() {
-	var v []models.DatosPreliquidacion
+	var v models.DatosPreliquidacion
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
-			  if( v[0].Preliquidacion.Nomina.Nombre == "HC"){
+			  if( v.Preliquidacion.Nomina.TipoNomina.Nombre == "HC"){
 						var n *PreliquidacionHcController
-						resumen := n.Preliquidar(&v[0])
+						resumen := n.Preliquidar(&v)
 						//pr := CargarNovedadesPersona(v[0].PersonasPreLiquidacion[0].IdPersona,&v[0])
 						//fmt.Println("prueba: ", pr)
 						c.Data["json"] = resumen
@@ -87,7 +87,7 @@ func CargarNovedadesPersona(id_persona int, datos_preliqu *models.DatosPreliquid
 
 	fechadesde := strconv.Itoa(int(y1))+"-"+strconv.Itoa(int(M1))+"-"+strconv.Itoa(int(d1))
 	fechahasta := strconv.Itoa(int(y2))+"-"+strconv.Itoa(int(M2))+"-"+strconv.Itoa(int(d2))
-	fmt.Println("fecha: " , fechadesde)
+	
 	filtrodatos := "Persona:"+strconv.Itoa(id_persona)+",FechaDesde__gte:"+fechadesde+",FechaHasta__lte:"+fechahasta+",EstadoNovedad:1,Nomina:"+strconv.Itoa(datos_preliqu.Preliquidacion.Nomina.Id)
 	//-----------------------------------------------------------------
 

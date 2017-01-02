@@ -40,10 +40,11 @@ func (c *PreliquidacionHcController) Preliquidar(datos *models.DatosPreliquidaci
 	reglasbase = CargarReglasBase(v , dominio)//funcion general para dar formato a reglas cargadas desde el ruler
 	//-----------------------------
 	//carga de informacion de los empleados a partir del id de persona Natural (en este momento id proveedor)
-
+	fmt.Println("personas", len(datos.PersonasPreLiquidacion))
 	for i := 0; i < len(datos.PersonasPreLiquidacion); i++ {
 		filtrodatos = "NumeroContrato.Contratista.Id:"+strconv.Itoa(datos.PersonasPreLiquidacion[i].IdPersona)
-		if err := getJson("http://"+beego.AppConfig.String("Urlcrud")+":"+beego.AppConfig.String("Portcrud")+"/"+beego.AppConfig.String("Nscrud")+"/acta_inicio?limit=1&query="+filtrodatos, &datos_contrato); err == nil{
+		
+		if err := getJson("http://"+beego.AppConfig.String("Urlcrud")+":"+beego.AppConfig.String("Portcrud")+"/"+beego.AppConfig.String("Nscrud")+"/acta_inicio?limit=1&query="+filtrodatos, &datos_contrato); err == nil && datos_contrato != nil{
 
 			a,m,d := diff(datos_contrato[0].FechaInicio,datos_contrato[0].FechaFin)
 			//al,ml,dl := diff(datos.FechaInicio,datos.FechaFin)
@@ -54,7 +55,7 @@ func (c *PreliquidacionHcController) Preliquidar(datos *models.DatosPreliquidaci
 			reglasinyectadas = FormatoReglas(predicados)
 			reglasinyectadas = reglasinyectadas + CargarNovedadesPersona(datos_contrato[0].NumeroContrato.Contratista.Id, datos)
 			reglas =  reglasinyectadas + reglasbase
-			fmt.Println("num: ",reglas)
+
 			temp := golog.CargarReglas(reglas,datos.Preliquidacion.Nomina.Periodo)
 
 			resultado := temp[len(temp)-1]
@@ -66,17 +67,18 @@ func (c *PreliquidacionHcController) Preliquidar(datos *models.DatosPreliquidaci
 				if err := sendJson("http://"+beego.AppConfig.String("Urlcrud")+":"+beego.AppConfig.String("Portcrud")+"/"+beego.AppConfig.String("Nscrud")+"/detalle_preliquidacion","POST",&idDetaPre ,&detallepreliqu); err == nil {
 
 				}else{
-					beego.Debug("error: ", err)
+					beego.Debug("error1: ", err)
 				}
 			}
 			//------------------------------------------------
 			resumen_preliqu = append(resumen_preliqu, resultado)
-				fmt.Println("append: ", resumen_preliqu[0].Nombre_Cont)
 			predicados = nil;
+			datos_contrato = nil
 			reglas = ""
 			reglasinyectadas = ""
 		}else{
-			fmt.Println("error: ", err)
+			fmt.Println(filtrodatos)
+			fmt.Println("error3: ", err)
 		}
 
 	}

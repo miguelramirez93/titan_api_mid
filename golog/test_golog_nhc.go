@@ -31,10 +31,10 @@ func CargarReglas(reglas string, periodo string) (rest []models.Respuesta) {
                                                  Valor : fmt.Sprintf("%.0f", Valor),
                                                                        }
       codigo := m.ProveAll(`codigo_concepto(`+temp_conceptos.Nombre+`,C).`)
-      fmt.Println("C: ", temp_conceptos.Nombre)
+
       for _, cod := range codigo{
         temp_conceptos.Id , _ = strconv.Atoi(fmt.Sprintf("%s", cod.ByName_("C")))
-        fmt.Printf("%s \n", cod.ByName_("C"))
+
        }
       lista_descuentos = append(lista_descuentos,temp_conceptos)
     }
@@ -50,10 +50,10 @@ func CargarReglas(reglas string, periodo string) (rest []models.Respuesta) {
                                                  Valor : fmt.Sprintf("%.0f", Valor),
                                                                        }
       codigo := m.ProveAll("codigo_concepto("+temp_conceptos.Nombre+",C).")
-      fmt.Println("C: ", temp_conceptos.Nombre)
+
       for _, cod := range codigo{
         temp_conceptos.Id , _ = strconv.Atoi(fmt.Sprintf("%s", cod.ByName_("C")))
-        fmt.Printf("%s \n", cod.ByName_("C"))
+        
        }
 
       lista_descuentos = append(lista_descuentos,temp_conceptos)
