@@ -87,8 +87,8 @@ func CargarNovedadesPersona(id_persona int, datos_preliqu *models.DatosPreliquid
 
 	fechadesde := strconv.Itoa(int(y1))+"-"+strconv.Itoa(int(M1))+"-"+strconv.Itoa(int(d1))
 	fechahasta := strconv.Itoa(int(y2))+"-"+strconv.Itoa(int(M2))+"-"+strconv.Itoa(int(d2))
-	
-	filtrodatos := "Persona:"+strconv.Itoa(id_persona)+",FechaDesde__gte:"+fechadesde+",FechaHasta__lte:"+fechahasta+",EstadoNovedad:1,Nomina:"+strconv.Itoa(datos_preliqu.Preliquidacion.Nomina.Id)
+
+	filtrodatos := "Persona:"+strconv.Itoa(id_persona)+",FechaDesde__lte:"+fechadesde+",FechaHasta__gte:"+fechahasta+",EstadoNovedad:1,Nomina:"+strconv.Itoa(datos_preliqu.Preliquidacion.Nomina.Id)
 	//-----------------------------------------------------------------
 
 	//consulta de la(s) novedades que pueda tener la persona para la pre-liquidacion
