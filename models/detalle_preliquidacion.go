@@ -8,4 +8,5 @@ type DetallePreliquidacion struct {
 	Preliquidacion int       `orm:"column(preliquidacion)"`
 	Persona        int       `orm:"column(persona)"`
 	Concepto       *Concepto `orm:"column(concepto);rel(fk)"`
+	NumeroContrato *ContratoGeneral `orm:"column(numero_contrato);rel(fk)"`
 }
