@@ -29,9 +29,12 @@ func (c *PreliquidacionController) URLMapping() {
 func (c *PreliquidacionController) Preliquidar() {
 	var v models.DatosPreliquidacion
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
+		//carga de reglas desde el ruler
+		reglasbase := CargarReglasBase(v.Preliquidacion.Nomina.TipoNomina.Nombre)//funcion general para dar formato a reglas cargadas desde el ruler
+		//-----------------------------
 			  if( v.Preliquidacion.Nomina.TipoNomina.Nombre == "HC"){
 						var n *PreliquidacionHcController
-						resumen := n.Preliquidar(&v)
+						resumen := n.Preliquidar(&v,reglasbase)
 						//pr := CargarNovedadesPersona(v[0].PersonasPreLiquidacion[0].IdPersona,&v[0])
 						//fmt.Println("prueba: ", pr)
 						c.Data["json"] = resumen
@@ -43,9 +46,10 @@ func (c *PreliquidacionController) Preliquidar() {
 		}
 
 }
-func CargarReglasBase (v []models.Predicado , dominio string)(reglas string){
+func CargarReglasBase (dominio string)(reglas string){
 	//carga de reglas desde el ruler
 	var reglasbase string = ``
+	var v []models.Predicado
 	var datos_conceptos []models.Concepto
 	if err := getJson("http://"+beego.AppConfig.String("Urlcrud")+":"+beego.AppConfig.String("Portcrud")+"/"+beego.AppConfig.String("Nscrud")+"/concepto?limit=0", &datos_conceptos); err == nil{
 		for _ , datos := range datos_conceptos {
@@ -55,10 +59,10 @@ func CargarReglasBase (v []models.Predicado , dominio string)(reglas string){
 
 	}
 
-	if err := getJson("http://"+beego.AppConfig.String("Urlruler")+":"+beego.AppConfig.String("Portruler")+"/"+beego.AppConfig.String("Nsruler")+"/predicado?limit=0&query=Dominio.Id:"+dominio, &v); err == nil {
+	if err := getJson("http://"+beego.AppConfig.String("Urlruler")+":"+beego.AppConfig.String("Portruler")+"/"+beego.AppConfig.String("Nsruler")+"/predicado?limit=0&query=Dominio.Nombre:"+dominio, &v); err == nil {
 		reglasbase = reglasbase + FormatoReglas(v)//funcion general para dar formato a reglas cargadas desde el ruler
 	}else{
-
+		fmt.Println("err: ", err)
 	}
 
 	//-----------------------------

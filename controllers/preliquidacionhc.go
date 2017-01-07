@@ -20,25 +20,23 @@ type PreliquidacionHcController struct {
 // @Success 201 {object} models.PreliquidacionHc
 // @Failure 403 body is empty
 // @router / [post]
-func (c *PreliquidacionHcController) Preliquidar(datos *models.DatosPreliquidacion) (res []models.Respuesta) {
+func (c *PreliquidacionHcController) Preliquidar(datos *models.DatosPreliquidacion , reglasbase string) (res []models.Respuesta) {
 	//declaracion de variables
-	dominio := "1"
-	var v []models.Predicado //carga reglas del ruler
+
+	
 	var predicados []models.Predicado //variable para inyectar reglas
 	var datos_contrato []models.ActaInicio
 	//var datos_novedades []models.ConceptoPorPersona
 	var resumen_preliqu []models.Respuesta
 	var meses_contrato float64
 	//var periodo_liquidacion float64
-	var reglasbase string
+
 	var reglasinyectadas string
 	var reglas string
 	var filtrodatos string
 	var idDetaPre interface{}
 	//-----------------------
-	//carga de reglas desde el ruler
-	reglasbase = CargarReglasBase(v , dominio)//funcion general para dar formato a reglas cargadas desde el ruler
-	//-----------------------------
+
 	//carga de informacion de los empleados a partir del id de persona Natural (en este momento id proveedor)
 	fmt.Println("personas", len(datos.PersonasPreLiquidacion))
 	for i := 0; i < len(datos.PersonasPreLiquidacion); i++ {
