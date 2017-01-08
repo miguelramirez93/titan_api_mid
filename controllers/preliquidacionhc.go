@@ -23,7 +23,7 @@ type PreliquidacionHcController struct {
 func (c *PreliquidacionHcController) Preliquidar(datos *models.DatosPreliquidacion , reglasbase string) (res []models.Respuesta) {
 	//declaracion de variables
 
-	
+
 	var predicados []models.Predicado //variable para inyectar reglas
 	var datos_contrato []models.ActaInicio
 	//var datos_novedades []models.ConceptoPorPersona
@@ -48,10 +48,11 @@ func (c *PreliquidacionHcController) Preliquidar(datos *models.DatosPreliquidaci
 			//al,ml,dl := diff(datos.FechaInicio,datos.FechaFin)
 			meses_contrato = (float64(a*12))+float64(m)+(float64(d)/30)
 			//periodo_liquidacion = (float64(al*12))+float64(ml)+(float64(dl)/30)
-			predicados = append(predicados,models.Predicado{Nombre:"valor_contrato("+strconv.Itoa(datos_contrato[0].NumeroContrato.Contratista.Id)+","+strconv.FormatFloat(datos_contrato[0].NumeroContrato.ValorContrato, 'f', -1, 64)+"). "} )
-			predicados = append(predicados,models.Predicado{Nombre:"duracion_contrato("+strconv.Itoa(datos_contrato[0].NumeroContrato.Contratista.Id)+","+strconv.FormatFloat(meses_contrato, 'f', -1, 64)+","+datos.Preliquidacion.Nomina.Periodo+"). "} )
+			predicados = append(predicados,models.Predicado{Nombre:"valor_contrato("+strconv.Itoa(datos.PersonasPreLiquidacion[i].IdPersona)+","+strconv.FormatFloat(datos_contrato[0].NumeroContrato.ValorContrato, 'f', -1, 64)+"). "} )
+			predicados = append(predicados,models.Predicado{Nombre:"duracion_contrato("+strconv.Itoa(datos.PersonasPreLiquidacion[i].IdPersona)+","+strconv.FormatFloat(meses_contrato, 'f', -1, 64)+","+datos.Preliquidacion.Nomina.Periodo+"). "} )
 			reglasinyectadas = FormatoReglas(predicados)
-			reglasinyectadas = reglasinyectadas + CargarNovedadesPersona(datos_contrato[0].NumeroContrato.Contratista.Id, datos)
+		
+			reglasinyectadas = reglasinyectadas + CargarNovedadesPersona(datos.PersonasPreLiquidacion[i].IdPersona, datos)
 			reglas =  reglasinyectadas + reglasbase
 
 			temp := golog.CargarReglas(reglas,datos.Preliquidacion.Nomina.Periodo)
@@ -61,7 +62,7 @@ func (c *PreliquidacionHcController) Preliquidar(datos *models.DatosPreliquidaci
 			//se guardan los conceptos calculados en la nomina
 			for _, descuentos := range *resultado.Conceptos{
 				valor,_ := strconv.ParseInt(descuentos.Valor,10,64)
-				detallepreliqu := models.DetallePreliquidacion{Concepto: &models.Concepto{Id : descuentos.Id} , Persona: datos_contrato[0].NumeroContrato.Contratista.Id,Preliquidacion : datos.Preliquidacion.Id, ValorCalculado:valor, NumeroContrato: &models.ContratoGeneral{ Id: datos_contrato[0].NumeroContrato.Id}    }
+				detallepreliqu := models.DetallePreliquidacion{Concepto: &models.Concepto{Id : descuentos.Id} , Persona: datos.PersonasPreLiquidacion[i].IdPersona,Preliquidacion : datos.Preliquidacion.Id, ValorCalculado:valor, NumeroContrato: &models.ContratoGeneral{ Id: datos_contrato[0].NumeroContrato.Id}    }
 				if err := sendJson("http://"+beego.AppConfig.String("Urlcrud")+":"+beego.AppConfig.String("Portcrud")+"/"+beego.AppConfig.String("Nscrud")+"/detalle_preliquidacion","POST",&idDetaPre ,&detallepreliqu); err == nil {
 
 				}else{

@@ -84,22 +84,15 @@ func FormatoReglas(v []models.Predicado)(reglas string){
 }
 
 func CargarNovedadesPersona(id_persona int, datos_preliqu *models.DatosPreliquidacion)(reglas string){
-	//formato de las fechas para el rango de validez de la(s) novedades
-	y1, M1, d1 := datos_preliqu.Preliquidacion.FechaInicio.Date()
-	y2, M2, d2 := datos_preliqu.Preliquidacion.FechaFin.Date()
 
-
-	fechadesde := strconv.Itoa(int(y1))+"-"+strconv.Itoa(int(M1))+"-"+strconv.Itoa(int(d1))
-	fechahasta := strconv.Itoa(int(y2))+"-"+strconv.Itoa(int(M2))+"-"+strconv.Itoa(int(d2))
-
-	filtrodatos := "Persona:"+strconv.Itoa(id_persona)+",FechaDesde__lte:"+fechadesde+",FechaHasta__gte:"+fechahasta+",EstadoNovedad:1,Nomina:"+strconv.Itoa(datos_preliqu.Preliquidacion.Nomina.Id)
-	//-----------------------------------------------------------------
 
 	//consulta de la(s) novedades que pueda tener la persona para la pre-liquidacion
 	var v []models.ConceptoPorPersona
+	
 	reglas = "" //inicializacion de la variable donde se inyectaran las novedades como reglas
-	if err := getJson("http://"+beego.AppConfig.String("Urlcrud")+":"+beego.AppConfig.String("Portcrud")+"/"+beego.AppConfig.String("Nscrud")+"/concepto_por_persona?limit=0&query="+filtrodatos, &v); err == nil{
+	if err := sendJson("http://"+beego.AppConfig.String("Urlcrud")+":"+beego.AppConfig.String("Portcrud")+"/"+beego.AppConfig.String("Nscrud")+"/concepto_por_persona/novedades_activas/"+strconv.Itoa(id_persona),"POST",&v,&datos_preliqu.Preliquidacion); err == nil{
 		if(v != nil){
+
 			for i := 0; i < len(v); i++ {
 				reglas = reglas + "concepto("+strconv.Itoa(id_persona)+","+v[i].Concepto.Naturaleza+", "+v[i].Tipo+", "+v[i].Concepto.NombreConcepto+", "+strconv.FormatFloat(v[i].ValorNovedad, 'f', -1, 64)+", "+datos_preliqu.Preliquidacion.Nomina.Periodo+"). "+"\n"
 			}
@@ -107,7 +100,7 @@ func CargarNovedadesPersona(id_persona int, datos_preliqu *models.DatosPreliquid
 		}
 
 	}
-
+	fmt.Println("novedad: ", reglas)
 	//------------------------------------------------------------------------------
 	return reglas
 

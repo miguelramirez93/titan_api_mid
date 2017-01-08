@@ -8,7 +8,7 @@ import (
 
 type ConceptoPorPersona struct {
 	ValorNovedad  float64     `orm:"column(valor_novedad)"`
-	EstadoNovedad int64     `orm:"column(estado_novedad)"`
+	EstadoNovedad string     `orm:"column(estado_novedad)"`
 	FechaDesde    time.Time `orm:"column(fecha_desde);type(date)"`
 	FechaHasta    time.Time `orm:"column(fecha_hasta);type(date)"`
 	NumCuotas     int64     `orm:"column(num_cuotas)"`
