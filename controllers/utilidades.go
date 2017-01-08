@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/astaxie/beego"
 	"time"
+
 )
 
 func sendJson(url string, trequest string, target interface{}, datajson interface{}) error {
@@ -42,6 +43,9 @@ func diff(a, b time.Time) (year, month, day int) {
     if a.After(b) {
         a, b = b, a
     }
+		 oneDay := time.Hour * 5
+		 a = a.Add(oneDay)
+		 b = b.Add(oneDay)
     y1, M1, d1 := a.Date()
     y2, M2, d2 := b.Date()
 
@@ -53,7 +57,12 @@ func diff(a, b time.Time) (year, month, day int) {
 
 
     // Normalize negative values
-
+		/*if day < 0{
+			day = 0
+		}
+		if month < 0 {
+        month = 0
+    }*/
     if day < 0 {
         // days in month:
         t := time.Date(y1, M1, 32, 0, 0, 0, 0, time.UTC)

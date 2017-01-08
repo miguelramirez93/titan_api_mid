@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"titan_api_mid/golog"
 	"fmt"
+
 )
 
 // PreliquidacionHcController operations for PreliquidacionHc
@@ -29,29 +30,48 @@ func (c *PreliquidacionHcController) Preliquidar(datos *models.DatosPreliquidaci
 	//var datos_novedades []models.ConceptoPorPersona
 	var resumen_preliqu []models.Respuesta
 	var meses_contrato float64
-	//var periodo_liquidacion float64
+	var periodo_liquidacion int
 
 	var reglasinyectadas string
 	var reglas string
 	var filtrodatos string
 	var idDetaPre interface{}
+	var al,ml,dl int
 	//-----------------------
 
+
 	//carga de informacion de los empleados a partir del id de persona Natural (en este momento id proveedor)
-	fmt.Println("personas", len(datos.PersonasPreLiquidacion))
+
 	for i := 0; i < len(datos.PersonasPreLiquidacion); i++ {
 		filtrodatos = "NumeroContrato.Id:"+(datos.PersonasPreLiquidacion[i].NumeroContrato)+",Vigencia:"+datos.Preliquidacion.Nomina.Periodo
 		//fmt.Println("filtro: ", filtrodatos)
 		if err := getJson("http://"+beego.AppConfig.String("Urlcrud")+":"+beego.AppConfig.String("Portcrud")+"/"+beego.AppConfig.String("Nscrud")+"/acta_inicio?limit=1&query="+filtrodatos, &datos_contrato); err == nil && datos_contrato != nil{
 
 			a,m,d := diff(datos_contrato[0].FechaInicio,datos_contrato[0].FechaFin)
+			if datos_contrato[0].FechaInicio.After(datos.Preliquidacion.FechaInicio){
+				al,ml,dl = diff(datos_contrato[0].FechaInicio,datos.Preliquidacion.FechaFin)
+
+				if datos_contrato[0].FechaFin.Before(datos.Preliquidacion.FechaFin){
+					al,ml,dl = a,m,d
+
+				}
+
+			}else if datos_contrato[0].FechaFin.Before(datos.Preliquidacion.FechaFin){
+				al,ml,dl = diff(datos.Preliquidacion.FechaInicio,datos_contrato[0].FechaFin)
+
+			}else{
+				al,ml,dl = diff(datos.Preliquidacion.FechaInicio,datos.Preliquidacion.FechaFin)
+
+			}
 			//al,ml,dl := diff(datos.FechaInicio,datos.FechaFin)
 			meses_contrato = (float64(a*12))+float64(m)+(float64(d)/30)
-			//periodo_liquidacion = (float64(al*12))+float64(ml)+(float64(dl)/30)
+			periodo_liquidacion = ((al*364))+(ml*29)+((dl+1))
+
+			predicados = append(predicados,models.Predicado{Nombre:"dias_liquidados("+strconv.Itoa(datos.PersonasPreLiquidacion[i].IdPersona)+","+strconv.Itoa(periodo_liquidacion)+"). "} )
 			predicados = append(predicados,models.Predicado{Nombre:"valor_contrato("+strconv.Itoa(datos.PersonasPreLiquidacion[i].IdPersona)+","+strconv.FormatFloat(datos_contrato[0].NumeroContrato.ValorContrato, 'f', -1, 64)+"). "} )
 			predicados = append(predicados,models.Predicado{Nombre:"duracion_contrato("+strconv.Itoa(datos.PersonasPreLiquidacion[i].IdPersona)+","+strconv.FormatFloat(meses_contrato, 'f', -1, 64)+","+datos.Preliquidacion.Nomina.Periodo+"). "} )
 			reglasinyectadas = FormatoReglas(predicados)
-		
+
 			reglasinyectadas = reglasinyectadas + CargarNovedadesPersona(datos.PersonasPreLiquidacion[i].IdPersona, datos)
 			reglas =  reglasinyectadas + reglasbase
 
