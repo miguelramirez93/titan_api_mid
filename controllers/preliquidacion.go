@@ -42,7 +42,11 @@ func (c *PreliquidacionController) Preliquidar() {
 			}
 
 			if( v.Preliquidacion.Nomina.TipoNomina.Nombre == "FP"){
-				fmt.Println("hola")
+					var n *PreliquidacionFpController
+					resumen := n.Preliquidar(&v,reglasbase)
+					c.Data["json"] = resumen
+					c.ServeJSON()
+
 		}
 
 		}else{
