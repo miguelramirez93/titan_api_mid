@@ -32,7 +32,7 @@ func (c *PreliquidacionController) Preliquidar() {
 		//carga de reglas desde el ruler
 		reglasbase := CargarReglasBase(v.Preliquidacion.Nomina.TipoNomina.Nombre)//funcion general para dar formato a reglas cargadas desde el ruler
 		//-----------------------------
-			  if( v.Preliquidacion.Nomina.TipoNomina.Nombre == "HC"){
+			  if( v.Preliquidacion.Nomina.TipoNomina.Nombre == "HC" ||  v.Preliquidacion.Nomina.TipoNomina.Nombre == "HC-SALARIOS"){
 						var n *PreliquidacionHcController
 						resumen := n.Preliquidar(&v,reglasbase)
 						//pr := CargarNovedadesPersona(v[0].PersonasPreLiquidacion[0].IdPersona,&v[0])
@@ -88,7 +88,7 @@ func CargarNovedadesPersona(id_persona int, datos_preliqu *models.DatosPreliquid
 
 	//consulta de la(s) novedades que pueda tener la persona para la pre-liquidacion
 	var v []models.ConceptoPorPersona
-	
+
 	reglas = "" //inicializacion de la variable donde se inyectaran las novedades como reglas
 	if err := sendJson("http://"+beego.AppConfig.String("Urlcrud")+":"+beego.AppConfig.String("Portcrud")+"/"+beego.AppConfig.String("Nscrud")+"/concepto_por_persona/novedades_activas/"+strconv.Itoa(id_persona),"POST",&v,&datos_preliqu.Preliquidacion); err == nil{
 		if(v != nil){
