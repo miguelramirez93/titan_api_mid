@@ -41,6 +41,10 @@ func (c *PreliquidacionController) Preliquidar() {
 					  c.ServeJSON()
 			}
 
+			if( v.Preliquidacion.Nomina.TipoNomina.Nombre == "FP"){
+				fmt.Println("hola")
+		}
+
 		}else{
 			fmt.Println("error2: ", err)
 		}
@@ -88,7 +92,7 @@ func CargarNovedadesPersona(id_persona int, datos_preliqu *models.DatosPreliquid
 
 	//consulta de la(s) novedades que pueda tener la persona para la pre-liquidacion
 	var v []models.ConceptoPorPersona
-	
+
 	reglas = "" //inicializacion de la variable donde se inyectaran las novedades como reglas
 	if err := sendJson("http://"+beego.AppConfig.String("Urlcrud")+":"+beego.AppConfig.String("Portcrud")+"/"+beego.AppConfig.String("Nscrud")+"/concepto_por_persona/novedades_activas/"+strconv.Itoa(id_persona),"POST",&v,&datos_preliqu.Preliquidacion); err == nil{
 		if(v != nil){
