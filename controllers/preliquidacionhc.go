@@ -68,6 +68,9 @@ func (c *PreliquidacionHcController) Preliquidar(datos *models.DatosPreliquidaci
 			periodo_liquidacion = ((al*365))+(ml*30)+((dl))
 			fmt.Println("meses: ",meses_contrato)
 			fmt.Println("dias: ",periodo_liquidacion)
+			if datos_contrato[0].FechaFin.Before(datos.Preliquidacion.FechaFin) || datos_contrato[0].FechaFin.Equal(datos.Preliquidacion.FechaFin){
+				predicados = append(predicados,models.Predicado{Nombre:"fin_contrato("+strconv.Itoa(datos.PersonasPreLiquidacion[i].IdPersona)+",si). "} )
+			}
 			predicados = append(predicados,models.Predicado{Nombre:"dias_liquidados("+strconv.Itoa(datos.PersonasPreLiquidacion[i].IdPersona)+","+strconv.Itoa(periodo_liquidacion)+"). "} )
 			predicados = append(predicados,models.Predicado{Nombre:"valor_contrato("+strconv.Itoa(datos.PersonasPreLiquidacion[i].IdPersona)+","+strconv.FormatFloat(datos_contrato[0].NumeroContrato.ValorContrato, 'f', -1, 64)+"). "} )
 			predicados = append(predicados,models.Predicado{Nombre:"duracion_contrato("+strconv.Itoa(datos.PersonasPreLiquidacion[i].IdPersona)+","+strconv.FormatFloat(meses_contrato, 'f', -1, 64)+","+datos.Preliquidacion.Nomina.Periodo+"). "} )
