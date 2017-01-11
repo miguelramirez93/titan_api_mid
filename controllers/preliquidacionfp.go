@@ -5,8 +5,8 @@ import (
 	"titan_api_mid/models"
 //	"strconv"
 	"titan_api_mid/golog"
-//	"fmt"
-
+//  "fmt"
+	"time"
 )
 
 // PreliquidacionHcController operations for PreliquidacionHc
@@ -26,13 +26,46 @@ func (c *PreliquidacionFpController) Preliquidar(datos *models.DatosPreliquidaci
 
 	var resumen_preliqu []models.Respuesta
 	for i := 0; i < len(datos.PersonasPreLiquidacion); i++ {
-				 //consulta que envie ID de proveedor en datos y retorne el salario, para que sea enviado a CargarReglas
-			 	temp := golog.CargarReglasFP(reglasbase,datos.Preliquidacion.Nomina.Periodo)
+			var informacion_cargo []models.FuncionarioCargo;
+			filtrodatos := models.FuncionarioCargo{Id:datos.PersonasPreLiquidacion[i].IdPersona,Asignacion_basica:0}
+
+
+			if err := sendJson("http://"+beego.AppConfig.String("Urlcrud")+":"+beego.AppConfig.String("Portcrud")+"/"+beego.AppConfig.String("Nscrud")+"/funcionario_cargo","POST",&informacion_cargo,&filtrodatos); err == nil {
+				dias_laborados := CalcularDias(informacion_cargo[0].FechaInicio, informacion_cargo[0].FechaFin)
+				temp := golog.CargarReglasFP(reglasbase,informacion_cargo,dias_laborados,datos.Preliquidacion.Nomina.Periodo)
 				resultado := temp[len(temp)-1]
 				resultado.NumDocumento  =float64(datos.PersonasPreLiquidacion[i].IdPersona)
 				resumen_preliqu = append(resumen_preliqu, resultado)
+
+				}
+
+
 			}
 
 			return resumen_preliqu
+
+}
+
+func CalcularDias(FechaInicio  time.Time, FechaFin  time.Time)(dias_laborados  float64){
+	var a,m,d int
+	var meses_contrato float64
+	var dias_contrato float64
+	if(FechaFin.IsZero()){
+			var FechaFin2 time.Time
+			FechaFin2 = time.Now()
+			a,m,d = diff(FechaInicio,FechaFin2)
+			meses_contrato = (float64(a*12))+float64(m)+(float64(d)/30)
+			dias_contrato = meses_contrato * 30;
+
+	}	else{
+		a,m,d = diff(FechaInicio,FechaFin)
+		meses_contrato = (float64(a*12))+float64(m)+(float64(d)/30)
+		dias_contrato = meses_contrato * 30;
+
+	}
+
+	return dias_contrato
+
+
 
 }
