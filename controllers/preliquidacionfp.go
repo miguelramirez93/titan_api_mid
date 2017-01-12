@@ -3,7 +3,7 @@ package controllers
 import (
 	"github.com/astaxie/beego"
 	"titan_api_mid/models"
-//	"strconv"
+	"strconv"
 	"titan_api_mid/golog"
 //  "fmt"
 	"time"
@@ -23,7 +23,7 @@ type PreliquidacionFpController struct {
 // @router / [post]
 func (c *PreliquidacionFpController) Preliquidar(datos *models.DatosPreliquidacion , reglasbase string) (res []models.Respuesta) {
 	//declaracion de variables
-
+	var idDetaPre interface{}
 	var resumen_preliqu []models.Respuesta
 	for i := 0; i < len(datos.PersonasPreLiquidacion); i++ {
 			var informacion_cargo []models.FuncionarioCargo;
@@ -36,6 +36,16 @@ func (c *PreliquidacionFpController) Preliquidar(datos *models.DatosPreliquidaci
 				resultado := temp[len(temp)-1]
 				resultado.NumDocumento  =float64(datos.PersonasPreLiquidacion[i].IdPersona)
 				resumen_preliqu = append(resumen_preliqu, resultado)
+
+				for _, descuentos := range *resultado.Conceptos{
+					valor,_ := strconv.ParseInt(descuentos.Valor,10,64)
+					detallepreliqu := models.DetallePreliquidacion{Concepto: &models.Concepto{Id : descuentos.Id} , Persona: datos.PersonasPreLiquidacion[i].IdPersona,Preliquidacion : datos.Preliquidacion.Id, ValorCalculado:valor, NumeroContrato: &models.ContratoGeneral{ Id: datos.PersonasPreLiquidacion[i].NumeroContrato}    }
+					if err := sendJson("http://"+beego.AppConfig.String("Urlcrud")+":"+beego.AppConfig.String("Portcrud")+"/"+beego.AppConfig.String("Nscrud")+"/detalle_preliquidacion","POST",&idDetaPre ,&detallepreliqu); err == nil {
+
+					}else{
+						beego.Debug("error1: ", err)
+					}
+					}
 
 				}
 

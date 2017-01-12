@@ -62,6 +62,7 @@ func CargarReglasBase (dominio string)(reglas string){
 	if err := getJson("http://"+beego.AppConfig.String("Urlcrud")+":"+beego.AppConfig.String("Portcrud")+"/"+beego.AppConfig.String("Nscrud")+"/concepto?limit=0", &datos_conceptos); err == nil{
 		for _ , datos := range datos_conceptos {
 				reglasbase = reglasbase + `codigo_concepto(`+datos.NombreConcepto+`,`+strconv.Itoa(datos.Id)+`).` + "\n"
+
 		}
 	}else{
 
@@ -72,7 +73,7 @@ func CargarReglasBase (dominio string)(reglas string){
 	}else{
 		fmt.Println("err: ", err)
 	}
-
+	fmt.Println(reglasbase)
 	//-----------------------------
 	return reglasbase
 }
