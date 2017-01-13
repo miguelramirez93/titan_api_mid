@@ -35,8 +35,6 @@ func (c *PreliquidacionController) Preliquidar() {
 			  if( v.Preliquidacion.Nomina.TipoNomina.Nombre == "HC"){
 						var n *PreliquidacionHcController
 						resumen := n.Preliquidar(&v,reglasbase)
-						//pr := CargarNovedadesPersona(v[0].PersonasPreLiquidacion[0].IdPersona,&v[0])
-						//fmt.Println("prueba: ", pr)
 						c.Data["json"] = resumen
 					  c.ServeJSON()
 			}
@@ -44,6 +42,7 @@ func (c *PreliquidacionController) Preliquidar() {
 			if( v.Preliquidacion.Nomina.TipoNomina.Nombre == "FP"){
 					var n *PreliquidacionFpController
 					resumen := n.Preliquidar(&v,reglasbase)
+
 					c.Data["json"] = resumen
 					c.ServeJSON()
 
@@ -94,7 +93,7 @@ func FormatoReglas(v []models.Predicado)(reglas string){
 
 func CargarNovedadesPersona(id_persona int, datos_preliqu *models.DatosPreliquidacion)(reglas string){
 
-
+	fmt.Println("aqui")
 	//consulta de la(s) novedades que pueda tener la persona para la pre-liquidacion
 	var v []models.ConceptoPorPersona
 

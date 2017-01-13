@@ -5,7 +5,7 @@ import (
 	"titan_api_mid/models"
 	"strconv"
 	"titan_api_mid/golog"
-//  "fmt"
+  "fmt"
 	"time"
 )
 
@@ -23,6 +23,8 @@ type PreliquidacionFpController struct {
 // @router / [post]
 func (c *PreliquidacionFpController) Preliquidar(datos *models.DatosPreliquidacion , reglasbase string) (res []models.Respuesta) {
 	//declaracion de variables
+	var reglasinyectadas string
+	var reglas string
 	var idDetaPre interface{}
 	var resumen_preliqu []models.Respuesta
 	for i := 0; i < len(datos.PersonasPreLiquidacion); i++ {
@@ -32,7 +34,10 @@ func (c *PreliquidacionFpController) Preliquidar(datos *models.DatosPreliquidaci
 
 			if err := sendJson("http://"+beego.AppConfig.String("Urlcrud")+":"+beego.AppConfig.String("Portcrud")+"/"+beego.AppConfig.String("Nscrud")+"/funcionario_cargo","POST",&informacion_cargo,&filtrodatos); err == nil {
 				dias_laborados := CalcularDias(informacion_cargo[0].FechaInicio, informacion_cargo[0].FechaFin)
-				temp := golog.CargarReglasFP(reglasbase,informacion_cargo,dias_laborados,datos.Preliquidacion.Nomina.Periodo)
+				reglasinyectadas = reglasinyectadas + CargarNovedadesPersona(datos.PersonasPreLiquidacion[i].IdPersona, datos)
+				reglas =  reglasinyectadas + reglasbase
+				temp := golog.CargarReglasFP(reglas,datos.PersonasPreLiquidacion[i].IdPersona,informacion_cargo,dias_laborados,datos.Preliquidacion.Nomina.Periodo)
+
 				resultado := temp[len(temp)-1]
 				resultado.NumDocumento  =float64(datos.PersonasPreLiquidacion[i].IdPersona)
 				resumen_preliqu = append(resumen_preliqu, resultado)
@@ -60,6 +65,8 @@ func CalcularDias(FechaInicio  time.Time, FechaFin  time.Time)(dias_laborados  f
 	var a,m,d int
 	var meses_contrato float64
 	var dias_contrato float64
+	fmt.Println("hola")
+	fmt.Println(FechaInicio)
 	if(FechaFin.IsZero()){
 			var FechaFin2 time.Time
 			FechaFin2 = time.Now()
@@ -74,6 +81,7 @@ func CalcularDias(FechaInicio  time.Time, FechaFin  time.Time)(dias_laborados  f
 
 	}
 
+	fmt.Println(dias_contrato)
 	return dias_contrato
 
 

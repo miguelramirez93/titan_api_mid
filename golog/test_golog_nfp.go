@@ -7,7 +7,7 @@ import (
   . "github.com/mndrix/golog"
 )
 
-func CargarReglasFP(reglas string, informacion_cargo []models.FuncionarioCargo, dias_laborados float64,periodo string)  (rest []models.Respuesta){
+func CargarReglasFP(reglas string, idProveedor int, informacion_cargo []models.FuncionarioCargo, dias_laborados float64,periodo string)  (rest []models.Respuesta){
 
       var resultado []models.Respuesta
       temp := models.Respuesta{}
@@ -122,7 +122,6 @@ func CargarReglasFP(reglas string, informacion_cargo []models.FuncionarioCargo, 
       }
 
       total_devengado_string := strconv.Itoa(int(total_devengado))
-      fmt.Println(total_devengado_string)
       valor_salud := m.ProveAll("salud_fun("+total_devengado_string+",2016,V).")
       for _, solution := range     valor_salud {
         Valor,_ := strconv.ParseFloat(fmt.Sprintf("%s", solution.ByName_("V")), 64)
@@ -140,6 +139,57 @@ func CargarReglasFP(reglas string, informacion_cargo []models.FuncionarioCargo, 
 
       }
 
+      valor_pension := m.ProveAll("pension_fun("+total_devengado_string+",2016,V).")
+      for _, solution := range     valor_pension {
+        Valor,_ := strconv.ParseFloat(fmt.Sprintf("%s", solution.ByName_("V")), 64)
+        temp_conceptos := models.ConceptosResumen {Nombre : "pension" ,
+                                                   Valor : fmt.Sprintf("%.0f", Valor),
+                                             }
+        codigo := m.ProveAll("codigo_concepto("+temp_conceptos.Nombre+",C).")
 
+        for _, cod := range codigo{
+          temp_conceptos.Id , _ = strconv.Atoi(fmt.Sprintf("%s", cod.ByName_("C")))
+          }
+        lista_descuentos = append(lista_descuentos,temp_conceptos)
+        temp.Conceptos = &lista_descuentos
+        resultado = append(resultado,temp)
+
+      }
+
+      valor_fondo_solidaridad := m.ProveAll("fondo_solidaridad_fun("+total_devengado_string+",2017,V).")
+      for _, solution := range    valor_fondo_solidaridad {
+        Valor,_ := strconv.ParseFloat(fmt.Sprintf("%s", solution.ByName_("V")), 64)
+        temp_conceptos := models.ConceptosResumen {Nombre : "fondoSolidaridad" ,
+                                                   Valor : fmt.Sprintf("%.0f", Valor),
+                                             }
+        codigo := m.ProveAll("codigo_concepto("+temp_conceptos.Nombre+",C).")
+
+        for _, cod := range codigo{
+          temp_conceptos.Id , _ = strconv.Atoi(fmt.Sprintf("%s", cod.ByName_("C")))
+          }
+        lista_descuentos = append(lista_descuentos,temp_conceptos)
+        temp.Conceptos = &lista_descuentos
+        resultado = append(resultado,temp)
+
+      }
+
+      idProveedorString := strconv.Itoa(idProveedor)
+      novedades := m.ProveAll("info_concepto("+idProveedorString+",T,2017,N,R).")
+
+      for _, solution := range novedades {
+
+        Valor,_ := strconv.ParseFloat(fmt.Sprintf("%s", solution.ByName_("R")), 64)
+        temp_conceptos := models.ConceptosResumen {Nombre : fmt.Sprintf("%s", solution.ByName_("N")),
+                                                   Valor : fmt.Sprintf("%.0f", Valor),
+                                                                         }
+        codigo := m.ProveAll("codigo_concepto("+temp_conceptos.Nombre+",C).")
+        for _, cod := range codigo{
+          temp_conceptos.Id , _ = strconv.Atoi(fmt.Sprintf("%s", cod.ByName_("C")))
+         }
+
+        lista_descuentos = append(lista_descuentos,temp_conceptos)
+        temp.Conceptos = &lista_descuentos
+        resultado = append(resultado,temp)
+      }
       return resultado
 }
