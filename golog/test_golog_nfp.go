@@ -41,7 +41,7 @@ func CargarReglasFP(reglas string, idProveedor int, informacion_cargo []models.F
 
 
 
-      valor_gastos_representacion := m.ProveAll("gr("+asignacion_basica_string+",15,2016,"+id_cargo_string+",V).")
+      valor_gastos_representacion := m.ProveAll("gr("+asignacion_basica_string+",15,0,2016,"+id_cargo_string+",V).")
       for _, solution := range   valor_gastos_representacion {
         Valor,_ := strconv.ParseFloat(fmt.Sprintf("%s", solution.ByName_("V")), 64)
         total_devengado  = total_devengado + Valor;
@@ -62,7 +62,7 @@ func CargarReglasFP(reglas string, idProveedor int, informacion_cargo []models.F
       }
 
 
-      valor_prima_antiguedad := m.ProveAll("prima_ant("+asignacion_basica_string+",15,2016,"+dias_laborados_string+",V).")
+      valor_prima_antiguedad := m.ProveAll("prima_ant("+asignacion_basica_string+",15,0,2016,"+dias_laborados_string+",V).")
       for _, solution := range     valor_prima_antiguedad {
         Valor,_ := strconv.ParseFloat(fmt.Sprintf("%s", solution.ByName_("V")), 64)
         total_devengado  = total_devengado + Valor;
@@ -82,7 +82,8 @@ func CargarReglasFP(reglas string, idProveedor int, informacion_cargo []models.F
 
       }
 
-      valor_bonificacion_servicios := m.ProveAll("bon_ser("+asignacion_basica_string+",15,2016,"+dias_laborados_string+","+id_cargo_string+",V).")
+
+      valor_bonificacion_servicios := m.ProveAll("bon_ser("+asignacion_basica_string+",15,0,2016,"+dias_laborados_string+","+id_cargo_string+",V).")
       for _, solution := range     valor_bonificacion_servicios {
         Valor,_ := strconv.ParseFloat(fmt.Sprintf("%s", solution.ByName_("V")), 64)
         total_devengado  = total_devengado + Valor;
@@ -102,7 +103,7 @@ func CargarReglasFP(reglas string, idProveedor int, informacion_cargo []models.F
 
       }
 
-      valor_prima_secretarial := m.ProveAll("prima_secretarial("+asignacion_basica_string+",2016,"+dias_laborados_string+",V).")
+      valor_prima_secretarial := m.ProveAll("prima_secretarial("+asignacion_basica_string+",2016,0,"+dias_laborados_string+",V).")
       for _, solution := range     valor_prima_secretarial {
         Valor,_ := strconv.ParseFloat(fmt.Sprintf("%s", solution.ByName_("V")), 64)
         total_devengado  = total_devengado + Valor;
