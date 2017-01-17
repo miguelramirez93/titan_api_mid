@@ -43,13 +43,22 @@ func (c *PreliquidacionController) Preliquidar() {
 
 			}
 			if( v.Preliquidacion.Nomina.TipoNomina.Nombre == "FP"){
-					
+
 					var n *PreliquidacionFpController
 					resumen := n.Preliquidar(&v,reglasbase)
 
 					c.Data["json"] = resumen
 					c.ServeJSON()
 
+		}
+
+		if v.Preliquidacion.Nomina.TipoNomina.Nombre == "DP" || v.Preliquidacion.Nomina.TipoNomina.Nombre == "DP-SALARIOS" {
+			var n *PreliquidaciondpController
+			resumen := n.Preliquidar(&v, reglasbase)
+			//pr := CargarNovedadesPersona(v[0].PersonasPreLiquidacion[0].IdPersona,&v[0])
+			//fmt.Println("prueba: ", pr)
+			c.Data["json"] = resumen
+			c.ServeJSON()
 		}
 
 		}else{
