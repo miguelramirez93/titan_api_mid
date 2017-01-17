@@ -31,6 +31,7 @@ func (c *PreliquidacionController) Preliquidar() {
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
 		//carga de reglas desde el ruler
 		reglasbase := CargarReglasBase(v.Preliquidacion.Nomina.TipoNomina.Nombre)//funcion general para dar formato a reglas cargadas desde el ruler
+
 		//-----------------------------
 			  if( v.Preliquidacion.Nomina.TipoNomina.Nombre == "HC" ||  v.Preliquidacion.Nomina.TipoNomina.Nombre == "HC-SALARIOS"){
 						var n *PreliquidacionHcController
@@ -39,7 +40,17 @@ func (c *PreliquidacionController) Preliquidar() {
 						//fmt.Println("prueba: ", pr)
 						c.Data["json"] = resumen
 					  c.ServeJSON()
+
 			}
+			if( v.Preliquidacion.Nomina.TipoNomina.Nombre == "FP"){
+					
+					var n *PreliquidacionFpController
+					resumen := n.Preliquidar(&v,reglasbase)
+
+					c.Data["json"] = resumen
+					c.ServeJSON()
+
+		}
 
 		}else{
 			fmt.Println("error2: ", err)
