@@ -1,6 +1,5 @@
 package models
 
-
 type InformacionProveedor struct {
 	Id                      int                `orm:"column(id_proveedor)"`
 	Tipopersona             string             `orm:"column(tipopersona)"`

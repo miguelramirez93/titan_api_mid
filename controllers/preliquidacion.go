@@ -1,12 +1,12 @@
 package controllers
 
 import (
-	"github.com/astaxie/beego"
-	"titan_api_mid/models"
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"titan_api_mid/models"
 
+	"github.com/astaxie/beego"
 )
 
 // PreliquidacionController operations for Preliquidacion
@@ -30,46 +30,54 @@ func (c *PreliquidacionController) Preliquidar() {
 	var v models.DatosPreliquidacion
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
 		//carga de reglas desde el ruler
-		reglasbase := CargarReglasBase(v.Preliquidacion.Nomina.TipoNomina.Nombre)//funcion general para dar formato a reglas cargadas desde el ruler
+		fmt.Println(v.Preliquidacion.Nomina.TipoNomina.Nombre)
+		reglasbase := CargarReglasBase(v.Preliquidacion.Nomina.TipoNomina.Nombre)
+		fmt.Println(reglasbase)
+		//funcion general para dar formato a reglas cargadas desde el ruler
 		//-----------------------------
-			  if( v.Preliquidacion.Nomina.TipoNomina.Nombre == "HC" ||  v.Preliquidacion.Nomina.TipoNomina.Nombre == "HC-SALARIOS"){
-						var n *PreliquidacionHcController
-						resumen := n.Preliquidar(&v,reglasbase)
-						//pr := CargarNovedadesPersona(v[0].PersonasPreLiquidacion[0].IdPersona,&v[0])
-						//fmt.Println("prueba: ", pr)
-						c.Data["json"] = resumen
-					  c.ServeJSON()
-			}
-
-		}else{
-			fmt.Println("error2: ", err)
+		if v.Preliquidacion.Nomina.TipoNomina.Nombre == "HC" || v.Preliquidacion.Nomina.TipoNomina.Nombre == "HC-SALARIOS" {
+			var n *PreliquidacionHcController
+			resumen := n.Preliquidar(&v, reglasbase)
+			//pr := CargarNovedadesPersona(v[0].PersonasPreLiquidacion[0].IdPersona,&v[0])
+			//fmt.Println("prueba: ", pr)
+			c.Data["json"] = resumen
+			c.ServeJSON()
 		}
+		if v.Preliquidacion.Nomina.TipoNomina.Nombre == "DP" || v.Preliquidacion.Nomina.TipoNomina.Nombre == "DP-SALARIOS" {
+			var n *PreliquidaciondpController
+			resumen := n.Preliquidar(&v, reglasbase)
+			//pr := CargarNovedadesPersona(v[0].PersonasPreLiquidacion[0].IdPersona,&v[0])
+			//fmt.Println("prueba: ", pr)
+			c.Data["json"] = resumen
+			c.ServeJSON()
+		}
+	} else {
+		fmt.Println("error2: ", err)
+	}
 
 }
-func CargarReglasBase (dominio string)(reglas string){
+func CargarReglasBase(dominio string) (reglas string) {
 	//carga de reglas desde el ruler
 	var reglasbase string = ``
 	var v []models.Predicado
 	var datos_conceptos []models.Concepto
-	if err := getJson("http://"+beego.AppConfig.String("Urlcrud")+":"+beego.AppConfig.String("Portcrud")+"/"+beego.AppConfig.String("Nscrud")+"/concepto?limit=0", &datos_conceptos); err == nil{
-		for _ , datos := range datos_conceptos {
-				reglasbase = reglasbase + `codigo_concepto(`+datos.NombreConcepto+`,`+strconv.Itoa(datos.Id)+`).` + "\n"
+	if err := getJson("http://"+beego.AppConfig.String("Urlcrud")+":"+beego.AppConfig.String("Portcrud")+"/"+beego.AppConfig.String("Nscrud")+"/concepto?limit=0", &datos_conceptos); err == nil {
+		for _, datos := range datos_conceptos {
+			reglasbase = reglasbase + `codigo_concepto(` + datos.NombreConcepto + `,` + strconv.Itoa(datos.Id) + `).` + "\n"
 		}
-	}else{
+	} else {
 
 	}
-
 	if err := getJson("http://"+beego.AppConfig.String("Urlruler")+":"+beego.AppConfig.String("Portruler")+"/"+beego.AppConfig.String("Nsruler")+"/predicado?limit=0&query=Dominio.Nombre:"+dominio, &v); err == nil {
-		reglasbase = reglasbase + FormatoReglas(v)//funcion general para dar formato a reglas cargadas desde el ruler
-	}else{
+		reglasbase = reglasbase + FormatoReglas(v) //funcion general para dar formato a reglas cargadas desde el ruler
+	} else {
 		fmt.Println("err: ", err)
 	}
-
 	//-----------------------------
 	return reglasbase
 }
 
-func FormatoReglas(v []models.Predicado)(reglas string){
+func FormatoReglas(v []models.Predicado) (reglas string) {
 	var arregloReglas = make([]string, len(v))
 	reglas = ""
 	//var respuesta []models.FormatoPreliqu
@@ -83,18 +91,17 @@ func FormatoReglas(v []models.Predicado)(reglas string){
 	return
 }
 
-func CargarNovedadesPersona(id_persona int, datos_preliqu *models.DatosPreliquidacion)(reglas string){
-
+func CargarNovedadesPersona(id_persona int, datos_preliqu *models.DatosPreliquidacion) (reglas string) {
 
 	//consulta de la(s) novedades que pueda tener la persona para la pre-liquidacion
 	var v []models.ConceptoPorPersona
 
 	reglas = "" //inicializacion de la variable donde se inyectaran las novedades como reglas
-	if err := sendJson("http://"+beego.AppConfig.String("Urlcrud")+":"+beego.AppConfig.String("Portcrud")+"/"+beego.AppConfig.String("Nscrud")+"/concepto_por_persona/novedades_activas/"+strconv.Itoa(id_persona),"POST",&v,&datos_preliqu.Preliquidacion); err == nil{
-		if(v != nil){
+	if err := sendJson("http://"+beego.AppConfig.String("Urlcrud")+":"+beego.AppConfig.String("Portcrud")+"/"+beego.AppConfig.String("Nscrud")+"/concepto_por_persona/novedades_activas/"+strconv.Itoa(id_persona), "POST", &v, &datos_preliqu.Preliquidacion); err == nil {
+		if v != nil {
 
 			for i := 0; i < len(v); i++ {
-				reglas = reglas + "concepto("+strconv.Itoa(id_persona)+","+v[i].Concepto.Naturaleza+", "+v[i].Tipo+", "+v[i].Concepto.NombreConcepto+", "+strconv.FormatFloat(v[i].ValorNovedad, 'f', -1, 64)+", "+datos_preliqu.Preliquidacion.Nomina.Periodo+"). "+"\n"
+				reglas = reglas + "concepto(" + strconv.Itoa(id_persona) + "," + v[i].Concepto.Naturaleza + ", " + v[i].Tipo + ", " + v[i].Concepto.NombreConcepto + ", " + strconv.FormatFloat(v[i].ValorNovedad, 'f', -1, 64) + ", " + datos_preliqu.Preliquidacion.Nomina.Periodo + "). " + "\n"
 			}
 
 		}
