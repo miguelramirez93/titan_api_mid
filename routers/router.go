@@ -20,6 +20,18 @@ func init() {
 				&controllers.PreliquidacionController{},
 			),
 		),
+
+		beego.NSNamespace("/liquidacion",
+			beego.NSInclude(
+				&controllers.LiquidarController{},
+			),
+		),
+
+		beego.NSNamespace("/detalle_liquidacion",
+			beego.NSInclude(
+				&controllers.DetalleLiquidacionController{},
+			),
+		),
 	)
 	beego.AddNamespace(ns)
 }
