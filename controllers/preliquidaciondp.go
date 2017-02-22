@@ -1,14 +1,11 @@
 package controllers
 
 import (
-
 	"fmt"
 	"strconv"
-
 	"time"
 	"titan_api_mid/golog"
 	"titan_api_mid/models"
-
 
 	"github.com/astaxie/beego"
 )
@@ -26,6 +23,8 @@ func (c *PreliquidaciondpController) Preliquidar(datos *models.DatosPreliquidaci
 	for i := 0; i < len(datos.PersonasPreLiquidacion); i++ {
 		var informacion_cargo []models.DocenteCargo
 		var cedula int
+		var reglasinyectadas string
+		var reglas string
 		filtrodatos := models.DocenteCargo{Id: datos.PersonasPreLiquidacion[i].IdPersona, Asignacion_basica: 0}
 		//fmt.Println("reglas: ", reglasbase)
 		//consulta que envie ID de proveedor en datos y retorne el salario, para que sea enviado a CargarReglas
@@ -38,9 +37,9 @@ func (c *PreliquidaciondpController) Preliquidar(datos *models.DatosPreliquidaci
 				regimen := informacion_cargo[0].Regimen
 				//puntos := consumir_puntos(cedula)
 				tiempo_contrato := CalcularDias(informacion_cargo[0].FechaInicio, time.Now())
-				temp := golog.CargarReglasDP(reglasbase, informacion_cargo, tiempo_contrato, datos.Preliquidacion.Nomina.Periodo, puntos, regimen)
-				//puntos = consumir_puntos()
-				//fmt.Println(puntos)
+				reglasinyectadas = reglasinyectadas + CargarNovedadesPersona(datos.PersonasPreLiquidacion[i].IdPersona, datos)
+				reglas = reglasinyectadas + reglasbase
+				temp := golog.CargarReglasDP(datos.PersonasPreLiquidacion[i].IdPersona, reglas, informacion_cargo, tiempo_contrato, datos.Preliquidacion.Nomina.Periodo, puntos, regimen)
 				resultado := temp[len(temp)-1]
 				resultado.NumDocumento = float64(datos.PersonasPreLiquidacion[i].IdPersona)
 				resumen_preliqu = append(resumen_preliqu, resultado)
@@ -67,7 +66,6 @@ func (c *PreliquidaciondpController) Preliquidar(datos *models.DatosPreliquidaci
 	return resumen_preliqu
 }
 
-
 func consumir_puntos(cedula int) (res string) {
 	var docente_puntos models.Docente_puntos
 	var puntos models.Puntos
@@ -86,11 +84,9 @@ func consumir_puntos(cedula int) (res string) {
 	return puntos_retorno
 }
 
-
-
 /*
 func aes_256(cedula string) (res string) {
-	key := []byte("400R97mGc1FdTZsJ")
+	key := []byte("")
 	data := "pagina=estadoDeCuentaCondor&bloqueNombre=estadoDeCuentaCondor&bloqueGrupo=reportes&docente=" + cedula + "&expiracion=1483946906&procesarAjax=true&action=query&format=json"
 	plaintext := []byte(data)
 	block, err := aes.NewCipher(key)

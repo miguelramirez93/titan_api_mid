@@ -23,9 +23,9 @@ func (c *LiquidarController) Liquidar() {
 	var v models.Preliquidacion
 
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
-		liquidacion := models.Liquidacion{Id: v.Id, NombreLiquidacion: v.Nombre, Nomina: &models.Nomina{Id: v.Nomina.Id}, EstadoLiquidacion: v.Estado, FechaLiquidacion: time.Now(), FechaInicio: v.FechaInicio, FechaFin: v.FechaFin}
-
-		fmt.Println(liquidacion)
+		liquidacion := models.Liquidacion{Id: v.Id, NombreLiquidacion: v.Nombre, Nomina: &models.Nomina{Id: v.Nomina.Id}, EstadoLiquidacion: "L", FechaLiquidacion: time.Now(), FechaInicio: v.FechaInicio, FechaFin: v.FechaFin}
+		fmt.Println("ACA ESTA LA LIQUIDADA GUEY")
+		fmt.Println(v.Liquidada)
 
 		if err := sendJson("http://"+beego.AppConfig.String("Urlcrud")+":"+beego.AppConfig.String("Portcrud")+"/"+beego.AppConfig.String("Nscrud")+"/liquidacion", "POST", &idLiquidacion, &liquidacion); err == nil {
 

@@ -29,8 +29,10 @@ func CargarReglasFP(reglas string, idProveedor int, informacion_cargo []models.F
 
 	} else {
 		dias_a_liquidar = "30"
-	}
 
+	}
+	reglas = reglas + "salario_base(" + asignacion_basica_string + ")."
+	reglas = reglas + "tipo_nomina(" + tipoNomina_string + ")."
 	m := NewMachine().Consult(reglas)
 	valor_salario := m.ProveAll("sb(" + asignacion_basica_string + "," + tipoNomina_string + "," + dias_a_liquidar + ",V).")
 	for _, solution := range valor_salario {
@@ -194,23 +196,25 @@ func CargarReglasFP(reglas string, idProveedor int, informacion_cargo []models.F
 
 	}
 
-	valor_fondo_solidaridad := m.ProveAll("fondo_solidaridad_fun(" + total_devengado_string + ",2017,V).")
-	for _, solution := range valor_fondo_solidaridad {
-		Valor, _ := strconv.ParseFloat(fmt.Sprintf("%s", solution.ByName_("V")), 64)
-		temp_conceptos := models.ConceptosResumen{Nombre: "fondoSolidaridad",
-			Valor: fmt.Sprintf("%.0f", Valor),
-		}
-		codigo := m.ProveAll("codigo_concepto(" + temp_conceptos.Nombre + ",C).")
+	if tipoNomina == 1 || tipoNomina == 2 {
 
-		for _, cod := range codigo {
-			temp_conceptos.Id, _ = strconv.Atoi(fmt.Sprintf("%s", cod.ByName_("C")))
-		}
-		lista_descuentos = append(lista_descuentos, temp_conceptos)
-		temp.Conceptos = &lista_descuentos
-		resultado = append(resultado, temp)
+		valor_fondo_solidaridad := m.ProveAll("fondo_solidaridad_fun(" + asignacion_basica_string + ",2017,V).")
+		for _, solution := range valor_fondo_solidaridad {
+			Valor, _ := strconv.ParseFloat(fmt.Sprintf("%s", solution.ByName_("V")), 64)
+			temp_conceptos := models.ConceptosResumen{Nombre: "fondoSolidaridad",
+				Valor: fmt.Sprintf("%.0f", Valor),
+			}
+			codigo := m.ProveAll("codigo_concepto(" + temp_conceptos.Nombre + ",C).")
 
+			for _, cod := range codigo {
+				temp_conceptos.Id, _ = strconv.Atoi(fmt.Sprintf("%s", cod.ByName_("C")))
+			}
+			lista_descuentos = append(lista_descuentos, temp_conceptos)
+			temp.Conceptos = &lista_descuentos
+			resultado = append(resultado, temp)
+
+		}
 	}
-
 	idProveedorString := strconv.Itoa(idProveedor)
 	novedades := m.ProveAll("info_concepto(" + idProveedorString + ",T,2017,N,R).")
 
