@@ -14,3 +14,8 @@ type Liquidacion struct {
 	FechaInicio       time.Time `orm:"column(fecha_inicio);type(date)"`
 	FechaFin          time.Time `orm:"column(fecha_fin);type(date)"`
 }
+
+type DatosLiquidacion struct {
+	Preliquidacion *Preliquidacion
+	Personas       []int
+}
